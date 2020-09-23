@@ -6,11 +6,7 @@
 <meta http-equiv="X-UA-compatible" content="IE=edge,chrome=1">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0, user-scalable=no" />
 </head>
-
 <body>
-
-
-	<!-- container -->
 	<div class="container_fluid main">
 		<!-- main_visual -->
 		<div class="col-md-12 main_visual">
@@ -22,7 +18,6 @@
 					<li data-target="#myCarousel" data-slide-to="1"></li>
 					<li data-target="#myCarousel" data-slide-to="2"></li>
 				</ol>
-
 				<!-- Wrapper for slides -->
 				<div class="carousel-inner">
 					<div class="item active">
@@ -174,12 +169,7 @@
 		</div>
 		<!-- /하단배너 -->
 
-
-
 	</div>
-	<!-- /container -->
-
-
 
 </body>
 </html>
