@@ -104,7 +104,8 @@
 					</div>
 				</div>
 				<div class="col-md-4">
-					<div class="img">
+					<div class="img"><!-- 주석임 -->
+				<!-- test -->
 						<img src="/img/main02_2.png" alt="Scrubber 기기 사진"><a href="/business/scrubber/index.jsp" class="plus_btn" title="Scrubber 페이지 바로가기 링크">+</a>
 						<div class="cover">
 							<a href="/business/scrubber/index.jsp"  title="Scrubber 페이지 바로가기 링크">
