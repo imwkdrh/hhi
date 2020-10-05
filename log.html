@@ -1,0 +1,27 @@
+<html>
+<head>
+<title>Hello world</title>
+</head>
+<body>
+2020년 10월 05일 확인한 사항
+    고객들이 파일을 날려먹거나 디렉토리 건드린 로그는 ftp 로그(/var/log/xferlog) 해당 파일은 1주단위로 저장된다
+    
+    /etc/vsftpd/vsftpd.conf
+    파일 수정
+    xferlog_enable=NO
+    xferlog_std_format=NO
+    dual_log_enable=YES
+    log_ftp_protocol=YES
+    
+    옵션으로 /var/log/vsftpd 파일에 자세한 로그를 남기는 것이 가능하다
+    
+    inno vod디렉토리는 백업이 없다
+    
+    
+
+
+
+    
+
+</body>
+</html>
