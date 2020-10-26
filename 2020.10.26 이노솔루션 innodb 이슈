@@ -1,0 +1,104 @@
+innoDB transaction isolation level과 binlog enable 시 문제점 정리
+
+ 
+
+시간이 없어서 간단하게 요약 자세한 내용은 중간중간 링크
+
+내용 또한 링크에서 발췌하여 내 이야기에 맞게 재편집
+
+(이노무 시간은 당최 언제쯤 많이 생길까?)
+
+ 
+
+<mysql transaction-isolation level 설정>
+
+http://blog.naver.com/PostView.nhn?blogId=tykim00&logNo=90042364199&viewDate=&currentPage=1&listtype=0
+
+http://eureka7.com.ne.kr/MySQL_4_1_API/innodb-transaction-isolation.html
+
+ 
+
+<mysql transaction-isolation level로 인한 장애 예방>
+
+http://gywn.net/2012/05/mysql-transaction-isolation-level/
+
+ 
+
+우선 MySQL의 아래와 같은 transaction isolation level을 가지고 있다. 
+
+ 
+
+Transaction Isolation Level
+
+READ UNCOMMITTED(dirty read)
+다른 트랜잭션이 Commit 전 상태를 볼 수 있음
+Binary Log가 자동으로 Row Based로 기록됨 (Statement설정 불가, Mixed 설정 시 자동 변환)
+READ-COMMITTED
+Commit된 내역을 읽을 수 있는 상태로, 트랜잭션이 다르더라도 특정 타 트랜잭션이 Commit을 수행하면 해당 데이터를 Read할 수 있음
+Binary Log가 자동으로 Row Based로 기록됨 (Statement설정 불가, Mixed 설정 시 자동 변환)
+REPEATABLE READ
+MySQL InnoDB 스토리지 엔진의 Default Isolation Level
+Select 시 현재 데이터 버전의 Snapshot을 만들고, 그 Snapshot으로부터 데이터를 조회
+동일 트랜잭션 내에서 데이터 일관성을 보장하고 데이터를 다시 읽기 위해서는 트랜잭션을 다시 시작해야 함
+SERIALIZABLE
+가장 높은 Isolation Level로 트랜잭션이 완료될 때까지 SELECT 문장이 사용하는 모든 데이터에 Shared Lock이 걸림
+다른 트랜잭션에서는 해당 영역에 관한 데이터 변경 뿐만 아니라 입력도 불가
+MySQL의 innoDB의 default isolation level은 REPETEABLE READ이다. 
+
+결국 트랜잭션이 처음 시작했을 때의 데이터를 가지고 있고 그것을 한 트랜 잭션 내에서 계속 사용하는 것이다. 
+
+뭐 시스템의 특성에 따라 다르겠지만, 내가 다루는 시스템의 특성?상 
+
+여러개의 프로세스가 동시에 DB에 접속해 빈번하게 commit이 일어나고 또한 트랜잭션이 수시로 변경된 내용을 참조해야하는 특징이 있어서 
+
+트랜잭션이 READ COMMITED로 변경하여 사용하였다. 
+
+ 
+
+그런데!!! 
+
+MySQL binlog를 enable 한 시점부터 기존의 문제 없던 트랜잭션에서 아래와 같은 문제가 생기기 시작했다
+
+Transaction level 'READ-COMMITTED' in InnoDB is not safe for binlog mode 'STATEMENT'  
+
+원인은 MySQL binlog type(STATEMENT)과 transaction-isolation level(READ-COMMITED)의 충돌이 생겨서 이다. 
+
+ 
+
+<MySQL binlog와 그 type이란?>
+
+http://faq.hostway.co.kr/Linux_DB/1306
+
+http://dev.kthcorp.com/2011/09/16/mysql-replication-binlog-format-mixed-vs-row/
+
+http://blog.naver.com/PostView.nhn?blogId=vsharp12&logNo=30005624618
+
+ 
+
+MySQL의 기본 binlog type은 STATEMENT이다. (별도로 지정하지 않을 경우 default)
+
+mysql> show variables like '%binlog_format%';
++---------------+-----------+
+| Variable_name | Value     |
++---------------+-----------+
+| binlog_format | STATEMENT |
++---------------+-----------+
+
+ 
+
+그런데 기존의 트랜잭션들이 READ-COMMITED 레벨로 트랜잭션을 열어서 충돌이 나서 위와 에러가 발생하기 시작한 것
+
+트랜잭션이 변경한 내용을 staement단위로 binlog에 내릴경우 중간에 commit된 내용을 읽을수 있는 READ-COMMITED는 STATEMENT를 수정?(commit되기 전의 데이터를 update문에 너었을 경우) 해야 해서 문제가 될 것으로 예상 된다.
+
+ROW-FORMAT의 경우 READ-COMMITED로 해서 중간에 다른 트랜잭션이 commit한 변경 내용을 가져와도 까짓것 row단위 변경문을 binlog에 내리면 되기 때문에 문제가 없다. 
+
+뭐 이런식이여서 이 부분이 은근히 중요함.....
+
+
+
+<그외 참고>
+
+http://hi.baidu.com/benmaoer/item/e1dc5a7aa0e4aa346cc37c8a
+
+http://confluence.goldpitcher.co.kr/pages/viewpage.action?pageId=117211331
+[출처] [MySQL] innoDB transaction isolation level과 binlog enable 시 문제점 정리|작성자 juner84
