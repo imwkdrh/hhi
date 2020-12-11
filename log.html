@@ -130,5 +130,18 @@
     i-staff의 홈디렉토리를 /home/i-web/www/skins로 지정
     i-web 그룹에 i-staff 추가
     /home/i-web/www/skins 홈디렉토리에 그룹 쓰기 권한 부여
+    
+    
+2020년 12월 11일 금요일
+    케이시스 5번 서버 mysql 재시작시 pid error 발생
+    my.cnf 
+    #socket=/var/lib/mysql/mysql.sock
+    socket=/tmp/mysql.sock
+    하여 해결
+    
+    이후 테스트에서
+    chown -R mysql.mysql /var/lib/mysql/
+    해주면 정상작동되는 것을 확인
+    5번서버가 이전 설정으로 정상작동 되었던 원인은 불명
 </body>
 </html>
